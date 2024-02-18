@@ -1,0 +1,49 @@
+---
+# tasks file for partidos
+- name: Asignado titulo
+  set_fact:
+     game_title: 'INFORMACION DEL PARTIDO UNIR'
+
+- name: Inicializar arreglo jugadores
+  set_fact:
+    players: []
+
+- name: Asignar 1er Jugador
+  set_fact:
+    players: "{{players + [{'first_name': 'Miguel Angel', 'last_name': 'Ramírez López', 'city': 'Playa del Carmen', 'id': player_id}] }}"
+
+- name: Obtener información remota jugador visitante
+  command:  curl -k -X GET "Accept:application/json" https://random-data-api.com/api/users/random_user?size=1
+  register: player_response
+
+- name: Parsear información Jugador visitante
+  set_fact:
+     visit_player: "{{(player_response.stdout|from_json)[0]}}"
+
+# - name: 'DEGUG'
+#   debug:
+#      var: visit_player
+
+- name: Colocar jugador visitante
+  set_fact:
+    players: "{{players + [{'first_name': visit_player.first_name, 'last_name': visit_player.last_name, 'city': visit_player.address.city, 'id': visit_player.id}] }}"
+
+- name: Obteniendo fecha juego
+  shell: "date +'%d-%m-%Y %H:%M' -d '+3 days'"
+  register: sys_date
+
+- name: Asigando fecha juego
+  set_fact:
+   game_date: "{{sys_date.stdout}}"
+
+- name: Generar archivo partidos
+  template: src=partido.txt dest=/vagrant/partido.txt
+
+
+- name: Capturando contenido partido.txt
+  command: cat /vagrant/partido.txt
+  register: partido_info
+
+- name: Imprimiendo debug contenido partido.txt
+  debug:
+    msg: "{{partido_info.stdout}}"

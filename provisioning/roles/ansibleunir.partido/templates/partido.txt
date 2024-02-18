@@ -1,0 +1,11 @@
+** {{game_title}} **
+
+{% for player in players %}
+First Name: {{player.first_name}}.
+Last Name: {{player.last_name}}.
+City: {{player.city}}.
+id: {{player.id}}.
+
+{% endfor %}
+ 
+Fecha: {{game_date}}
